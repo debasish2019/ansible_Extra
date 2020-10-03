@@ -1,0 +1,14 @@
+---
+- name: Demonstrate the "in" keyword
+  hosts: localhost
+  gather_facts: yes
+  vars:
+    supported_distros:
+      - RedHat
+      - Fedora
+  tasks:
+    - name: Install httpd using yum, where supported
+      yum:
+        name: http
+        state: present
+      when: ansible_distribution in supported_distros

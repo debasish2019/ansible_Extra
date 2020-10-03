@@ -1,0 +1,19 @@
+---
+- name: Implement Mariadb server
+  hosts: localhost
+  vars:
+    mariadb_packages:
+      - python3-PyMySQL      
+      - mariadb-server              
+  tasks: 
+    - name: Mariadb pacakage are installed
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ mariadb_packages }}" 
+      
+    - name: Start mariadb server
+      service:
+        name: mariadb
+        state: started
+        enabled: true
