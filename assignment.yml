@@ -1,0 +1,59 @@
+---
+- name: Complete Web server Deployment
+  hosts: localhost
+  ignore_errors: yes
+  vars:
+      web_pkg: httpd
+      web_service: httpd
+      remote_dir: /var/www/html/secret
+      remote_dir_access: /var/www/html/secret/.htaccess
+      remote_dir_passwd: /var/www/html/secret/.htpasswd
+      local_htaccess: http://Serverd.lab.example.com/content/htaccess
+      local_htpasswd: http://Serverd.lab.example.com/content/htpasswd
+  tasks:
+    - name: Installing Httpd service and enable
+      yum:
+        name: "{{ web_pkg }}"
+        state: latest
+        enabled: yes
+
+    - name: Create a Remote Directory
+      file:
+        state: directory
+        recurse: yes
+        path: "{{ remote_dir }}"
+
+    - name: Copy the file " local_htaccess "
+      get_url:
+        url: "{{ local_htaccess }}"
+        dest: "{{ remote_dir_access }}"
+        
+
+    - name: Copy the file " local_htaccess "
+      get_url:
+        url: "{{ local_htpasswd }}"
+        dest: "{{ remote_dir_passwd }}"
+    
+    - name: Create a Index.html file
+      file:
+        path: /var/www/html/secret/index.html
+        owner: apache
+        group: root
+        mode: 644
+        state: touch
+        setype: Actual_Node_name
+
+    - name: Persistance type
+      sefcontext:
+        target: /var/www/html/secret/index.html
+        setype: Actual_Node_name
+        state: present       
+       
+    - name: Restart the Httpd server
+      service:
+        name: httpd
+        state: restarted       
+
+
+
+       
