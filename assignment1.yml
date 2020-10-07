@@ -1,0 +1,43 @@
+---
+- name: Complete Web server deployment
+  hosts: localhost
+  ignore_errors: yes
+  tasks: 
+    - name: Creating the Directory "secret"
+      file:
+        path: /var/www/html/secret
+        state: directory
+        mode: '0755'
+
+    - name: Copy the file http://serverd.lab.example.com/content/htaccess as .htaccess
+      get_url:
+        url: http://serverd.lab.example.com/content/htaccess
+        dest: /var/www/html/secret/.htaccess
+        
+    - name: Copy the file http://serverd.lab.example.com/content/htpasswd as .htpasswd
+      get_url:
+        url: http://serverd.lab.example.com/content/htpasswd
+        dest: /var/www/html/secret/.htpasswd
+
+    - name: Replace AllowOverride None to AllowOverride AuthConfig in httpd.conf
+      replace:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^AllowOverride none'
+        replace: 'AllowOverride AuthConfig'
+    
+    - name: Copy using inline content
+      copy:
+        content: 'This node {{ ansible_hostname }} is protected'
+        dest: /var/www/html/index.html
+        owner: apache
+        group: root
+        mode: 0644
+
+    - name: Restart Httpd service
+      service:
+        name: httpd
+        state: restarted      
+
+
+    
+
